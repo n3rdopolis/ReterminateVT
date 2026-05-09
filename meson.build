@@ -176,7 +176,12 @@ if pam
 endif
 conf_data.set('pamconfdir', pamconfdir)
 
-bin_files = ['recinit', 'uvtty-launch', 'vtty-launch']
+bin_files = [
+  'chvt-logind',
+  'recinit',
+  'uvtty-launch',
+  'vtty-launch',
+]
 
 #chvt-logind can probably be /usr/bin/chvt, where the kbd package is no longer applicable
 #It is drop-in compatible (depending on the logind specifics for VT-less seats)
