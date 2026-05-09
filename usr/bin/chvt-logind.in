@@ -1,0 +1,57 @@
+#! /bin/bash
+#    Copyright (c) 2020 - 2026
+#
+#    This file is part of ReterminateVT
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#This utility works the same as chvt, only it uses logind's seat aware SwitchTo dbus method
+
+if [[ -z $1 ]]
+then
+  ExecutableName=$(basename $0)
+  echo "This utility switches to a session number that is running on the current seat, or specified seat"
+  echo " If there are VTs on the seat the session number is the vt number"
+  echo " If there are no VTs on the seat the session number is relative to the start order of sessions on the seat"
+  echo ""
+  echo "$ExecutableName: Not enough arguments."
+  echo "usage: $ExecutableName <session number>"
+  echo "or"
+  echo "usage: $ExecutableName <relative session number> <seat id>"
+  exit 1
+fi
+
+if [[ -z $2 ]]
+then
+  busctl introspect org.freedesktop.login1 /org/freedesktop/login1/seat/self org.freedesktop.login1.Seat &>/dev/null
+  Result=$?
+
+  if [[ $Result == 0 ]]
+  then
+    busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/self org.freedesktop.login1.Seat SwitchTo u $1
+  else
+    busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u $1
+  fi
+else
+  busctl introspect org.freedesktop.login1 /org/freedesktop/login1/seat/"$2" org.freedesktop.login1.Seat &>/dev/null
+  Result=$?
+
+  if [[ $Result == 0 ]]
+  then
+    busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/"$2" org.freedesktop.login1.Seat SwitchTo u $1
+  else
+    echo "seat $2 doesn't exist"
+    exit 1
+  fi
+fi

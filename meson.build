@@ -178,6 +178,13 @@ conf_data.set('pamconfdir', pamconfdir)
 
 bin_files = ['recinit', 'uvtty-launch', 'vtty-launch']
 
+#chvt-logind can probably be /usr/bin/chvt, where the kbd package is no longer applicable
+#It is drop-in compatible (depending on the logind specifics for VT-less seats)
+#If a number is the first argument, it calls SwitchTo() which is what most Display Servers already call when users hit Ctrl+Alt+F(x)
+#
+#If _two_ arguments are specified, it assumes the second one is the seat, the first one is the session number, but still backwards compatible
+#
+#Debian like ditros might package it with alternates? It is onlt chvt-logind to not conflict with the kbd package
 foreach bin_file : bin_files
   configure_file(
     input: 'usr/bin' / bin_file + '.in',
