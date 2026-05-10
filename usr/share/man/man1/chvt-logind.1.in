@@ -1,0 +1,36 @@
+'\" t
+'\" t
+.TH "CHVT-LOGIND" "1" "" "chvt-logind"
+.\" -----------------------------------------------------------------
+.\" -----------------------------------------------------------------
+.SH "NAME"
+chvt-logind - Session switch command for logind
+.PP
+.SH "SYNOPSIS"
+\fBchvt\-logind\fR \fISession_Number\fR [\fISeat_Name\fR]
+.SH "DESCRIPTION"
+.PP
+\fBchvt\-logind\fR
+has similar usage to the traditional chvt command from the kbd package.
+.PP
+\fBchvt\-logind\fR's arguments are positional. The first argument is
+required, and is the session number to switch to. The second argument
+is optional, and is the seat of which the session is being switched.
+(If no seat is specified, the current one is assumed.)
+.PP
+\fBchvt\-logind\fR calls the SwitchTo() method in
+.BR systemd-logind (8)
+to switch the session.
+.PP
+.SH "EXAMPLE USAGES"
+.PP
+.B Switching to the third session on the current seat:
+.RS 4
+chvt-logind 3
+.RE
+.PP
+.B Switching to the third session on seat0:
+.RE
+.RS 4
+chvt-logind 3 seat0
+.RE

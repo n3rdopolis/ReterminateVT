@@ -390,7 +390,13 @@ configure_file(
   install_dir: get_option('prefix') / get_option('datadir') / 'polkit-1/rules.d',
 )
 
-
+configure_file(
+  input: 'usr/share/man/man1/chvt-logind.1.in',
+  output: 'chvt-logind.1',
+  configuration: conf_data,
+  build_subdir: 'usr_share_man_man1',
+  install_dir: get_option('prefix') / get_option('datadir') / 'man/man1',
+)
 configure_file(
   input: 'usr/share/man/man1/uvtty-launch.1.in',
   output: 'uvtty-launch.1',
