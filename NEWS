@@ -1,0 +1,10 @@
+v 1.2026.06.02
+
+The inital full release of ReterminateVT )formerly fakekmscom)
+Pre-releases will be 0.yyyy.mm.dd, and releases will be 1.yyyy.mm.dd
+
+ReterminateVT features recovery consoles that work in an initrd, and work similar to init=/bin/bash (init=/bin/recinit)
+
+ReterminateVT features system consoles (vTTY) that run in userspace, that run as non-root, and can give way to display servers such as Weston
+
+ReterminateVT features an option to use the fenrir screen reader for accessibility
