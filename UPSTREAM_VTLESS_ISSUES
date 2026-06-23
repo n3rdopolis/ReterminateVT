@@ -1,0 +1,65 @@
+This is a list of problems that impact ReterminateVT or other components on a VT-less system
+
+- General Issue:
+
+     Currently the initrd builder scripts modify the initrd's "fallback to prompt" functions to start recinit instead of a shell. (as the shell now needs something to run under).
+
+     It modifies the files in the temporary initrd build location, but this is still not "clean". A better solution will have to be the upstream scripts adding the fallbacks to start recinit, but distributions will have to actually ship with ReterminateVT.
+
+- https://github.com/cage-kiosk/cage/pull/470
+  Cage / "Add cage clone mode"
+
+    Cage currently doesn't have a clone-mode option. 
+    Currently ReterminateVT uses Kanshi to enforce clone-mode, but that requires Kanshi to be running on the WAYLAND_DISPLAY and it also requires Kanshi to be in the initrd.
+
+
+- https://gitlab.freedesktop.org/wlroots/wlroots/-/work_items/4040
+  wlroots / "Wlroots fails to span to virtio and qxl GPUs"
+
+    wlroots seems to have a small issue starting with some multi-gpu configs. 
+    I don't know the impact on real hardware, but I was able to discover this with _virtual hardware_ I don't know what the VGA/cirrus drivers have that the QXL drivers do not. (As it does work with certian virtual hardware configs)
+
+    Currently ReterminateVT detects the primary GPU on the seat, and forces Cage to only use the one device.
+    Which should be mostly fine for most systems, this is how the VTs work currently, but the detection to set WLR_DRM_DEVICES makes the scripts larger.
+
+(((Clone Mode is desired for ReterminateVT, as no assumptions to the user's main display can be made.)))
+
+- https://github.com/systemd/systemd/issues/42509
+  systemd / "Seats seem to always be CanGraphical, even with no DRM or Framebuffer devices"
+
+    ReterminateVT ships with a udev file to make a fake seat, seat-vtty. Sessions that are started through a vtty, are started on the seat-vtty seat.
+    While there is no hardware allocated to seat-vtty, seat-vtty exists so that polkit works as expected, and not treated as a _remote_ session.
+
+    While it is insisted that "Seats are collections of hardware", the fake seat is NEEDED for the pty login to not be treated as "remote", where users will not have full polkit permissions. (nmtui, udisksctl, and the like). 
+
+    logind currently advertises seat-vtty as CanGraphical=yes, despite no /dev/dri/cardx devices being in the seat. Display Managers that rely on the CanGraphical attribute will likely try to start a greeter on it, and errors might be logged.
+
+    Perhaps display managers should determine if the seat has graphical devices on it, instead of just relying on CanGraphical, as CanGraphical seems like it is always going to return true on any seat.
+
+
+
+- https://bugs.kde.org/show_bug.cgi?id=466178
+  kscreenlocker / "kscreenlocker crash recovery advice doesn't make sense when there are no VTs "
+
+    This one does not impact ReterminateVT at all, but it is a papercut I discovered
+
+    When kwin fails to start kscreenlocker, it displays a very large message instructing the user to switch to a VT, run a loginctl command, and then, informs the user to switch back to their session with Ctrl+Alt+F<Current_VTNr>, of which, on a VT-less system/seat is 0. So it tells the user to press Ctrl+Alt+F0, which makes no sense, as there is no F0 key.
+
+- https://github.com/systemd/systemd/issues/42090
+  systemd / "Papercuts with logind's SwitchTo() method on VT-less seats"
+
+    logind has a dbus method on seats called SwitchTo() It takes an integer. On a VT-ed system, the integer is the VTNr.
+    On VT-less sytems, it is the session number by order, starting at 1. Mostly. If 3 sessions start on a seat, and the 2nd session stops, session 3 is still session 3. If another session starts, that one is session 2. It might not actually matter, but there is no way to know what "slot" the session is on.
+
+    Also the documentation says that "SwitchTo() switches to the session on the virtual terminal vtnr" which is wrong as it works for VT-less seats, it might have the above papercuts, but it works on VT-less seats, and the docs could use a tweak here.
+
+    ReterminateVT, instead of using SwitchTo() just uses ActivateSession() based on the order of the array returned by ListSessions() when cycling through sessions with the logind SecureAttentionKey signal.
+  
+- https://github.com/systemd/systemd/issues/42247
+  systemd / "Allow display managers to start sessions in background on non-VT seats"
+
+    This does not impact ReterminateVT, and was not reported by me. But I saw it, and noticed it, and am now documenting it here.
+    It seems the GDM devs want a way to start a session, and then switch to it
+    They want to do some animations in the greeter, before they instantly switch to the started session it seems.
+
+    
