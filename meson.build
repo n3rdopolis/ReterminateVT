@@ -353,8 +353,8 @@ if mkinitcpio.enabled()
 endif
 
 configure_file(
-  input: 'usr/share/wayland-sessions/fullscreenterminal.desktop.in',
-  output: 'fullscreenterminal.desktop',
+  input: 'usr/share/wayland-sessions/uvtty-terminal.desktop.in',
+  output: 'uvtty-terminal.desktop',
   configuration: conf_data,
   build_subdir: 'usr_share_wayland-sessions',
   install_dir: waylandsessionsdir,

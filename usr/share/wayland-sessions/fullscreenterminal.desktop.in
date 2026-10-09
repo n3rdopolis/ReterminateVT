@@ -1,5 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Fullscreen Terminal
-Comment=A fullscreen terminal that looks like a VT under Cage
-Exec="@libexecdir@/uvtty/uvtty-session"
