@@ -12,17 +12,16 @@ This is a list of problems that impact ReterminateVT or other components on a VT
     Cage currently doesn't have a clone-mode option. 
     Currently ReterminateVT uses Kanshi to enforce clone-mode, but that requires Kanshi to be running on the WAYLAND_DISPLAY and it also requires Kanshi to be in the initrd.
 
+- https://github.com/cage-kiosk/cage/issues/540 / https://gitlab.freedesktop.org/wlroots/wlroots/-/issues/3839
+  Handle simpledrm going away. Even if it means crashing
+  If wlroots is using simpledrm, and simpledrm is replaced, wlroots stays running, but nothing displays.
 
-- https://gitlab.freedesktop.org/wlroots/wlroots/-/work_items/4040
-  wlroots / "Wlroots fails to span to virtio and qxl GPUs"
+    This is a wlroots issue, but it impacts many other display servers, other than kwin which recently supports swapping the primary GPU.
 
-    wlroots seems to have a small issue starting with some multi-gpu configs. 
-    I don't know the impact on real hardware, but I was able to discover this with _virtual hardware_ I don't know what the VGA/cirrus drivers have that the QXL drivers do not. (As it does work with certian virtual hardware configs)
+    The issue is that if the primary GPU driver doesn't start in time, simpledrm is /dev/dri/card0. When the next driver loads, /dev/dri/card0 goes away.
+    When /dev/dri/card0 gets removed, many display servers, including Cage, either crash or the display pauses. Cage doesn't crash, but pauses, which is annoying, as if did crash, it would be better, so (U)vTTY-frontend could just rehandle respawning Cage.
 
-    Currently ReterminateVT detects the primary GPU on the seat, and forces Cage to only use the one device.
-    Which should be mostly fine for most systems, this is how the VTs work currently, but the detection to set WLR_DRM_DEVICES makes the scripts larger.
-
-(((Clone Mode is desired for ReterminateVT, as no assumptions to the user's main display can be made.)))
+    This is more based on a report from 2024 an AMD GPU dev https://github.com/systemd/systemd/issues/32509 though.
 
 - https://github.com/systemd/systemd/issues/42509
   systemd / "Seats seem to always be CanGraphical, even with no DRM or Framebuffer devices"
